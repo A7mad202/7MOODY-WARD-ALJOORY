@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APEX PULSE GYM | Elite Fitness & Performance</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Teko for Athletic Headings -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Teko:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gym: {
+                            black: '#070a08',
+                            charcoal: '#0f1712',
+                            darkgreen: '#052e16',
+                            midgreen: '#064e3b',
+                            lightgreen: '#4ade80',
+                            neon: '#a3e635'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Teko', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #070a08;
+            color: #f0fdf4;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070a08;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #064e3b;
+            border-radius: 5px;
+            border: 2px solid #070a08;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4ade80;
+        }
+
+        /* Coach Card Hover Expansion Magic */
+        .coach-card {
+            transition: all 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+            height: 370px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .coach-card:hover,
+        .coach-card.active-card {
+            transform: scale(1.07) translateY(-10px);
+            height: 540px;
+            z-index: 30;
+            box-shadow: 0 25px 50px -12px rgba(74, 222, 128, 0.35), 0 0 25px rgba(163, 230, 53, 0.25);
+            border-color: #a3e635;
+        }
+
+        .coach-card .coach-details {
+            opacity: 0;
+            max-height: 0;
+            transform: translateY(15px);
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            overflow: hidden;
+        }
+
+        .coach-card:hover .coach-details,
+        .coach-card.active-card .coach-details {
+            opacity: 1;
+            max-height: 320px;
+            transform: translateY(0);
+            margin-top: 0.75rem;
+        }
+
+        .coach-card .coach-image {
+            transition: transform 0.6s ease, filter 0.4s ease;
+        }
+
+        .coach-card:hover .coach-image,
+        .coach-card.active-card .coach-image {
+            transform: scale(1.1);
+            filter: brightness(0.45) contrast(1.15);
+        }
+
+        .coach-card .hover-hint {
+            transition: opacity 0.3s ease;
+        }
+
+        .coach-card:hover .hover-hint,
+        .coach-card.active-card .hover-hint {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Neon Pulse Glow */
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 15px rgba(74, 222, 128, 0.4), inset 0 0 15px rgba(74, 222, 128, 0.1);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(163, 230, 53, 0.7), inset 0 0 25px rgba(163, 230, 53, 0.2);
+            }
+        }
+
+        .video-glow {
+            animation: pulseGlow 4s infinite ease-in-out;
+        }
+
+        /* Background Fixed Gym Pattern */
+        .gym-bg-hero {
+            background-image: linear-gradient(to bottom, rgba(7, 10, 8, 0.82), rgba(5, 46, 22, 0.88), rgba(7, 10, 8, 0.98)),
+                              url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .gym-bg-coaches {
+            background-image: linear-gradient(to bottom, rgba(7, 10, 8, 0.96), rgba(6, 78, 59, 0.78), rgba(7, 10, 8, 0.98)),
+                              url('https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Equipment Ticker/Grid Hover */
+        .equip-badge {
+            transition: all 0.3s ease;
+        }
+        .equip-badge:hover {
+            transform: translateY(-4px);
+            border-color: #4ade80;
+            background: linear-gradient(145deg, rgba(6, 78, 59, 0.6), rgba(5, 46, 22, 0.9));
+            box-shadow: 0 10px 25px -5px rgba(74, 222, 128, 0.25);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-gym-neon selection:text-gym-black">
+
+    <!-- Toast Notification for Interactive Actions -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none bg-gym-darkgreen border-2 border-gym-lightgreen text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-gym-neon text-xl"></i>
+        <div>
+            <p id="toast-title" class="font-bold text-sm text-gym-neon uppercase tracking-wider">Copied!</p>
+            <p id="toast-message" class="text-xs text-gray-200">Phone number copied to clipboard.</p>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         1. HEADER (Location, Instagram, Phone, Facebook + Nav)
+         ========================================== -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-gym-black/90 border-b border-gym-midgreen/60 shadow-lg">
+        <!-- Top Contact & Social Info Bar -->
+        <div class="bg-gradient-to-r from-gym-black via-gym-darkgreen to-gym-black border-b border-gym-lightgreen/20 py-2.5 px-4">
+            <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm">
+                
+                <!-- Gym Location -->
+                <div class="flex items-center gap-2">
+                    <button onclick="openLocationModal()" class="group flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-gym-black/60 hover:bg-gym-midgreen/60 border border-gym-lightgreen/30 hover:border-gym-neon transition-all">
+                        <span class="w-6 h-6 rounded-full bg-gym-lightgreen/20 flex items-center justify-center text-gym-neon group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </span>
+                        <span class="text-gray-200 font-medium group-hover:text-white">
+                            <strong class="text-gym-lightgreen">Location:</strong> Mecca St, Amman, Jordan
+                        </span>
+                        <span class="text-[10px] bg-gym-lightgreen/20 text-gym-neon px-1.5 py-0.5 rounded uppercase font-semibold">Map</span>
+                    </button>
+                </div>
+
+                <!-- Social & Phone Links (Instagram, Phone, Facebook) -->
+                <div class="flex flex-wrap items-center gap-2 sm:gap-4">
+                    <!-- Phone Number -->
+                    <button onclick="copyPhone('+962 79 555 0199')" class="group flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gym-black/60 hover:bg-gym-midgreen/60 border border-gym-lightgreen/30 hover:border-gym-neon transition-all" title="Click to copy phone number">
+                        <span class="w-6 h-6 rounded-full bg-gym-lightgreen/20 flex items-center justify-center text-gym-lightgreen group-hover:rotate-12 transition-transform">
+                            <i class="fa-solid fa-phone"></i>
+                        </span>
+                        <span class="text-gray-200 font-medium group-hover:text-gym-neon">+962 79 555 0199</span>
+                    </button>
+
+                    <!-- Instagram Account -->
+                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" onclick="showToast('Instagram', 'Opening @ApexPulseGym official Instagram page')" class="group flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gym-black/60 hover:bg-gym-midgreen/60 border border-gym-lightgreen/30 hover:border-gym-neon transition-all">
+                        <span class="w-6 h-6 rounded-full bg-gym-lightgreen/20 flex items-center justify-center text-gym-neon group-hover:scale-110 transition-transform">
+                            <i class="fa-brands fa-instagram"></i>
+                        </span>
+                        <span class="text-gray-200 font-medium group-hover:text-gym-neon">@ApexPulseGym</span>
+                    </a>
+
+                    <!-- Facebook Page -->
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" onclick="showToast('Facebook', 'Opening Apex Pulse Fitness Club on Facebook')" class="group flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gym-black/60 hover:bg-gym-midgreen/60 border border-gym-lightgreen/30 hover:border-gym-neon transition-all">
+                        <span class="w-6 h-6 rounded-full bg-gym-lightgreen/20 flex items-center justify-center text-gym-lightgreen group-hover:scale-110 transition-transform">
+                            <i class="fa-brands fa-facebook-f"></i>
+                        </span>
+                        <span class="text-gray-200 font-medium group-hover:text-gym-neon">Apex Pulse Gym</span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Main Navigation Bar -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-gym-neon to-gym-midgreen flex items-center justify-center text-gym-black shadow-lg shadow-gym-lightgreen/20 group-hover:rotate-6 transition-transform">
+                    <i class="fa-solid fa-dumbbell text-2xl"></i>
+                </div>
+                <div>
+                    <span class="font-display text-3xl sm:text-4xl font-bold tracking-wider text-white">APEX <span class="text-gym-neon">PULSE</span></span>
+                    <span class="block text-[10px] uppercase tracking-[0.25em] text-gym-lightgreen -mt-2">Performance Club</span>
+                </div>
+            </a>
+
+            <!-- Desktop Navigation Links -->
+            <nav class="hidden md:flex items-center gap-8 text-sm font-semibold uppercase tracking-wider">
+                <a href="#video-section" class="text-gray-300 hover:text-gym-neon transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-play text-gym-lightgreen text-xs"></i> Gym Tour
+                </a>
+                <a href="#coaches-section" class="text-gray-300 hover:text-gym-neon transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-users text-gym-lightgreen text-xs"></i> Our Coaches
+                </a>
+                <a href="#equipment-footer" class="text-gray-300 hover:text-gym-neon transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-shield-halved text-gym-lightgreen text-xs"></i> Equipment
+                </a>
+            </nav>
+
+            <!-- Join CTA Button -->
+            <div class="flex items-center gap-3">
+                <button onclick="openBookingModal('Free Day Pass')" class="bg-gradient-to-r from-gym-lightgreen to-gym-neon hover:from-gym-neon hover:to-gym-lightgreen text-gym-black font-extrabold text-xs sm:text-sm uppercase tracking-wider px-5 py-2.5 rounded-xl shadow-lg shadow-gym-lightgreen/25 hover:scale-105 active:scale-95 transition-all">
+                    Join The Club
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==========================================
+         2. BODY (Gym Video Showcase + 4 Expanding Coach Cards)
+         ========================================== -->
+    <main>
+        
+        <!-- HERO & GYM VIDEO SECTION -->
+        <section id="video-section" class="gym-bg-hero py-14 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-gym-midgreen/50">
+            <div class="max-w-6xl mx-auto">
+                
+                <!-- Hero Header Text -->
+                <div class="text-center max-w-3xl mx-auto mb-10">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gym-darkgreen/90 border border-gym-lightgreen/40 text-gym-neon text-xs font-bold uppercase tracking-widest mb-4">
+                        <span class="w-2 h-2 rounded-full bg-gym-neon animate-ping"></span>
+                        Unleash Your Potential
+                    </div>
+                    <h1 class="font-display text-5xl sm:text-7xl font-bold uppercase tracking-wide text-white leading-none mb-4">
+                        FORGED IN <span class="text-transparent bg-clip-text bg-gradient-to-r from-gym-lightgreen to-gym-neon">DARK GREEN</span> & IRON
+                    </h1>
+                    <p class="text-gray-300 text-base sm:text-lg">
+                        Step inside our high-performance training facility. Watch our official gym tour below or load your own gym video directly into the player.
+                    </p>
+                </div>
+
+                <!-- GYM VIDEO PLACEHOLDER & INTERACTIVE PLAYER -->
+                <div class="relative rounded-2xl overflow-hidden bg-gym-charcoal border-2 border-gym-lightgreen/60 video-glow">
+                    
+                    <!-- Top Bar of Video Frame -->
+                    <div class="bg-gym-black/95 px-4 py-3 border-b border-gym-midgreen flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+                            <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+                            <span class="w-3 h-3 rounded-full bg-gym-lightgreen"></span>
+                            <span class="ml-2 text-xs font-mono text-gym-lightgreen uppercase tracking-wider">
+                                <i class="fa-solid fa-film mr-1"></i> Official Gym Video Showcase
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <!-- Upload Local Video Button so User can test immediately -->
+                            <label for="video-upload" class="cursor-pointer bg-gym-darkgreen hover:bg-gym-midgreen text-gym-neon border border-gym-lightgreen/40 px-3 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5">
+                                <i class="fa-solid fa-upload"></i> Select Your Video File
+                            </label>
+                            <input id="video-upload" type="file" accept="video/*" class="hidden" onchange="loadUserVideo(event)">
+                            
+                            <button onclick="toggleCodeHint()" class="bg-gym-black hover:bg-gym-darkgreen text-gray-300 hover:text-white border border-gray-700 px-3 py-1 rounded-lg text-xs font-medium transition-all">
+                                <i class="fa-solid fa-code text-gym-lightgreen mr-1"></i> How to Add in HTML
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Video Area (16:9 Responsive Aspect Ratio) -->
+                    <div class="relative aspect-video w-full bg-gym-black flex items-center justify-center overflow-hidden">
+                        
+                        <!-- ==========================================================
+                             ADD YOUR GYM VIDEO HERE:
+                             Replace the `src=""` attribute on the <video> tag below 
+                             with your own video file path (e.g. src="my-gym-video.mp4")
+                             ========================================================== -->
+                        <video id="gym-video-player" class="w-full h-full object-cover hidden" controls playsinline poster="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1600&q=80">
+                            <source id="gym-video-source" src="" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+
+                        <!-- Default Interactive Placeholder Overlay (Shown until a video is added/loaded) -->
+                        <div id="video-placeholder-ui" class=" relative w-full h-full flex flex-col items-center justify-center p-6 text-center bg-cover bg-center" style="background-image: linear-gradient(rgba(7, 10, 8, 0.72), rgba(5, 46, 22, 0.85)), url('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1600&q=80');">
+                            
+                            <!-- Decorative Corner Brackets -->
+                            <div class="absolute top-6 left-6 w-12 h-12 border-t-4 border-l-4 border-gym-neon/70 rounded-tl-lg pointer-events-none"></div>
+                            <div class="absolute top-6 right-6 w-12 h-12 border-t-4 border-r-4 border-gym-neon/70 rounded-tr-lg pointer-events-none"></div>
+                            <div class="absolute bottom-6 left-6 w-12 h-12 border-b-4 border-l-4 border-gym-neon/70 rounded-bl-lg pointer-events-none"></div>
+                            <div class="absolute bottom-6 right-6 w-12 h-12 border-b-4 border-r-4 border-gym-neon/70 rounded-br-lg pointer-events-none"></div>
+
+                            <!-- Big Pulsing Play / Add Video Button -->
+                            <label for="video-upload" class="cursor-pointer group relative mb-5">
+                                <div class="absolute -inset-3 rounded-full bg-gym-lightgreen/30 blur-md group-hover:bg-gym-neon/50 transition-all"></div>
+                                <div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-gym-lightgreen to-gym-neon text-gym-black flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-play text-3xl sm:text-4xl ml-1"></i>
+                                </div>
+                            </label>
+
+                            <h3 class="font-display text-3xl sm:text-4xl font-bold uppercase tracking-wider text-white mb-2">
+                                YOUR GYM VIDEO GOES HERE
+                            </h3>
+                            <p class="text-gray-300 text-sm sm:text-base max-w-lg mb-6">
+                                Click the play button above to choose a video file from your computer right now, or paste a video link below to preview it inside the website.
+                            </p>
+
+                            <!-- Quick Video URL Input -->
+                            <div class="flex flex-col sm:flex-row items-center gap-2 w-full max-w-md">
+                                <input id="video-url-input" type="text" placeholder="Or paste direct .mp4 video URL here..." class="w-full px-4 py-2.5 rounded-xl bg-gym-black/90 border border-gym-lightgreen/40 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-gym-neon">
+                                <button onclick="loadVideoFromUrl()" class="w-full sm:w-auto whitespace-nowrap px-5 py-2.5 rounded-xl bg-gym-midgreen hover:bg-gym-lightgreen hover:text-gym-black text-gym-neon font-bold text-xs uppercase tracking-wider transition-all border border-gym-lightgreen/50">
+                                    Load URL
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Collapsible Code Instruction Drawer -->
+                    <div id="code-hint-box" class="hidden bg-gym-black/95 border-t border-gym-midgreen p-4 text-xs font-mono text-gray-300">
+                        <p class="text-gym-neon font-bold mb-1"><i class="fa-solid fa-circle-info mr-1"></i> How to permanently set your video file in the code:</p>
+                        <p class="mb-2 text-gray-400">Find the <code class="text-gym-lightgreen">&lt;video id="gym-video-player"&gt;</code> tag in this HTML file, remove the <code class="text-gym-lightgreen">hidden</code> class, and put your video filename in <code class="text-gym-lightgreen">src="your-video.mp4"</code>:</p>
+                        <pre class="bg-gym-charcoal p-3 rounded-lg border border-gym-midgreen text-gym-lightgreen overflow-x-auto">&lt;video src="my-gym-tour.mp4" class="w-full h-full object-cover" controls autoplay muted loop&gt;&lt;/video&gt;</pre>
+                    </div>
+                </div>
+
+                <!-- Gym Highlights Strip below Video -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                    <div class="bg-gym-charcoal/90 border border-gym-midgreen/70 rounded-xl p-4 flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-lg bg-gym-darkgreen border border-gym-lightgreen/40 flex items-center justify-center text-gym-neon text-xl">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <div>
+                            <div class="font-display text-2xl font-bold text-white leading-none">2,500 m²</div>
+                            <div class="text-xs text-gray-400">Training Floor</div>
+                        </div>
+                    </div>
+                    <div class="bg-gym-charcoal/90 border border-gym-midgreen/70 rounded-xl p-4 flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-lg bg-gym-darkgreen border border-gym-lightgreen/40 flex items-center justify-center text-gym-neon text-xl">
+                            <i class="fa-solid fa-dumbbell"></i>
+                        </div>
+                        <div>
+                            <div class="font-display text-2xl font-bold text-white leading-none">120+</div>
+                            <div class="text-xs text-gray-400">Pro Machines</div>
+                        </div>
+                    </div>
+                    <div class="bg-gym-charcoal/90 border border-gym-midgreen/70 rounded-xl p-4 flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-lg bg-gym-darkgreen border border-gym-lightgreen/40 flex items-center justify-center text-gym-neon text-xl">
+                            <i class="fa-solid fa-user-ninja"></i>
+                        </div>
+                        <div>
+                            <div class="font-display text-2xl font-bold text-white leading-none">4 ELITE</div>
+                            <div class="text-xs text-gray-400">Master Coaches</div>
+                        </div>
+                    </div>
+                    <div class="bg-gym-charcoal/90 border border-gym-midgreen/70 rounded-xl p-4 flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-lg bg-gym-darkgreen border border-gym-lightgreen/40 flex items-center justify-center text-gym-neon text-xl">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <div>
+                            <div class="font-display text-2xl font-bold text-white leading-none">24 / 7</div>
+                            <div class="text-xs text-gray-400">Member Access</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ==========================================
+             COACHES SECTION (Sami, Haitham, Leena, Dana)
+             Small cards that expand larger on mouse hover
+             ========================================== -->
+        <section id="coaches-section" class="gym-bg-coaches py-20 px-4 sm:px-6 lg:px-8 border-b border-gym-midgreen/50">
+            <div class="max-w-7xl mx-auto">
+                
+                <!-- Section Heading -->
+                <div class="text-center max-w-2xl mx-auto mb-14">
+                    <span class="text-gym-neon text-xs font-extrabold uppercase tracking-[0.25em] block mb-2">
+                        <i class="fa-solid fa-fire-flame-curved mr-1"></i> Expert Guidance
+                    </span>
+                    <h2 class="font-display text-5xl sm:text-6xl font-bold uppercase text-white tracking-wide">
+                        MEET OUR <span class="text-gym-lightgreen">ELITE COACHES</span>
+                    </h2>
+                    <p class="text-gray-300 text-sm sm:text-base mt-2">
+                        Move your mouse cursor over any coach card below (or tap on mobile) to expand their full profile, specialties, and training schedule.
+                    </p>
+                </div>
+
+                <!-- 4 Coaches Grid Container (Min-height keeps layout smooth during hover expansion) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7 items-start min-h-[560px]">
+
+                    <!-- COACH 1: SAMI -->
+                    <div class="coach-card rounded-2xl overflow-hidden bg-gym-charcoal border-2 border-gym-midgreen cursor-pointer flex flex-col justify-end p-6 select-none" onclick="toggleCardMobile(this)">
+                        <!-- Background Coach Image -->
+                        <img src="https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=800&q=80" alt="Coach Sami" class="coach-image absolute inset-0 w-full h-full object-cover object-top brightness-75">
+                        <!-- Dark Green & Black Gradient Overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-gym-black via-gym-black/80 to-transparent"></div>
+
+                        <!-- Top Experience Badge -->
+                        <div class="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+                            <span class="bg-gym-darkgreen/90 border border-gym-lightgreen/50 text-gym-neon text-[11px] font-bold uppercase px-3 py-1 rounded-full">
+                                Head Coach
+                            </span>
+                            <span class="hover-hint bg-gym-black/80 text-gym-lightgreen text-[11px] px-2.5 py-1 rounded-full border border-gym-lightgreen/30 flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-pointer text-[10px]"></i> Hover Info
+                            </span>
+                        </div>
+
+                        <!-- Card Content -->
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-2.5 h-2.5 rounded-full bg-gym-neon"></span>
+                                <span class="text-xs font-bold uppercase tracking-wider text-gym-lightgreen">Strength & Conditioning</span>
+                            </div>
+                            <h3 class="font-display text-4xl font-bold text-white tracking-wide uppercase leading-none">
+                                COACH SAMI
+                            </h3>
+
+                            <!-- Hidden Details that Expand on Hover -->
+                            <div class="coach-details text-left">
+                                <p class="text-xs text-gray-200 leading-relaxed mb-3 border-l-2 border-gym-neon pl-2.5">
+                                    Former national powerlifting champion with 10+ years transforming beginners and athletes through progressive overload and biomechanics.
+                                </p>
+                                <!-- Specialties Tags -->
+                                <div class="flex flex-wrap gap-1.5 mb-3">
+                                    <span class="text-[11px] bg-gym-darkgreen text-gym-lightgreen px-2 py-0.5 rounded border border-gym-lightgreen/30">Powerlifting</span>
+                                    <span class="text-[11px] bg-gym-darkgreen text-gym-lightgreen px-2 py-0.5 rounded border border-gym-lightgreen/30">Muscle Gain</span>
+                                    <span class="text-[11px] bg-gym-darkgreen text-gym-lightgreen px-2 py-0.5 rounded border border-gym-lightgreen/30">CSCS Certified</span>
+                                </div>
+                                <!-- Stats & Schedule -->
+                                <div class="bg-gym-black/80 rounded-xl p-2.5 border border-gym-midgreen text-[11px] space-y-1 mb-3">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Experience:</span>
+                                        <span class="text-white font-semibold">10 Years</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Schedule:</span>
+                                        <span class="text-gym-neon font-semibold">Sun - Thu (8AM - 6PM)</span>
+                                    </div>
+                                </div>
+                                <button onclick="event.stopPropagation(); openBookingModal('Coach Sami')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-gym-lightgreen to-gym-neon text-gym-black font-extrabold text-xs uppercase tracking-wider hover:brightness-110 transition-all">
+                                    Train With Sami
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COACH 2: HAITHAM -->
+                    <div class="coach-card rounded-2xl overflow-hidden bg-gym-charcoal border-2 border-gym-midgreen cursor-pointer flex flex-col justify-end p-6 select-none" onclick="toggleCardMobile(this)">
+                        <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80" alt="Coach Haitham" class="coach-image absolute inset-0 w-full h-full object-cover object-top brightness-75">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gym-black via-gym-black/80 to-transparent"></div>
+
+                        <div class="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+                            <span class="bg-gym-darkgreen/90 border border-gym-lightgreen/50 text-gym-neon text-[11px] font-bold uppercase px-3 py-1 rounded-full">
+                                Pro Physique
+                            </span>
+                            <span class="hover-hint bg-gym-black/80 text-gym-lightgreen text-[11px] px-2.5 py-1 rounded-full border border-gym-lightgreen/30 flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-pointer text-[10px]"></i> Hover Info
+                            </span>
+                        </div>
+
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-2.5 h-2.5 rounded-full bg-gym-neon"></span>
+                                <span class="text-xs font-bold uppercase tracking-wider text-gym-lightgreen">Hypertrophy & Bodybuilding</span>
+                            </div>
+                            <h3 class="font-display text-4xl font-bold text-white tracking-wide uppercase leading-none">
+                                COACH HAITHAM
+                            </h3>
+
+                            <!-- Hidden Details that Expand on Hover -->
+                            <div class="coach-details text-left">
+                                <p class="text-xs text-gray-200 leading-relaxed mb-3 border-l-2 border-gym-neon pl-2.5">
+                                    Master of body recomposition, aesthetics, and customized sports nutrition plans designed to build lean muscle and shred fat.
+                                </p>
+                                <div class="flex flex-wrap gap-1.5 mb-3">
+                                    <span class="text-[11px] bg-gym-darkgreen text-gym-lightgreen px-2 py-0.5 rounded border border-gym-lightgreen/30">Hypertrophy</span>
+                                    <span class="text-[11px] bg-gym-darkgreen text-gym-lightgreen px-2 py-0.5 rounded border border-gym-lightgreen/30">Contest Prep</span>
+                                    <span class="text-[11px] bg-gym-darkgreen text-gym-lightgreen px-2 py-0.5 rounded border border-gym-lightgreen/30">Sports Nutrition</span>
+                                </div>
+                                <div class="bg-gym-black/80 rounded-xl p-2.5 border border-gym-midgreen text-[11px] space-y-1 mb-3">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Experience:</span>
+                                        <span class="text-white font-semibold">8 Years</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Schedule:</span>
+                                        <span class="text-gym-neon font-semibold">Sat - Thu (12PM - 10PM)</span>
+                                    </div>
+                                </div>
+                                <button onclick="event.stopPropagation(); openBookingModal('Coach Haitham')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-gym-lightgreen to-gym-neon text-gym-black font-extrabold text-xs uppercase tracking-wider hover:brightness-110 transition-all">
+                                    Train With Haitham
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COACH 3: LEENA -->
+                    <div class="coach-card rounded-2xl overflow-hidden bg-gym-charcoal border-2 border-gym-midgreen cursor-pointer flex flex-col justify-end p-6 select-none" onclick="toggleCardMobile(this)">
+                        <img src="https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=800&q=80" alt="Coach Leena" class="coach-image absolute inset-0 w-full h-full object-cover object-top brightness-75">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gym-black via-gym-black/80 to-transparent"></div>
+
+                        <div class="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+                            <span class="bg-gym-darkgreen/90 border border-gym-lightgreen/50 text-gym-neon text-[11px] font-bold uppercase px-3 py-1 rounded-full">
+                                HIIT & Conditioning
+                            </span>
+                            <span class="hover-hint bg-gym-black/80 text-gym-lightgreen text-[11px] px-2.5 py-1 rounded-full border border-gym-lightgreen/30 flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-pointer text-[10px]"></i> Hover Info
+                            </span>
+                        </div>
+
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-2.5 h-2.5 rounded-full bg-gym-neon"></span>
+                                <span class="text-xs font-bold uppercase tracking-wider text-gym-lightgreen">Functional & Fat Burn</span>
+                            </div>
+                            <h3 class="font-display text-4xl font-bold text-white tracking-wide uppercase leading-none">
+                                COACH LEENA
+                            </h3>
+
+                            <!-- Hidden Details that Expand on Hover -->
+                            <div class="coach-details text-left">
+                                <p class="text-xs text-gray-200 leading-relaxed mb-3 border-l-2 border-gym-neon pl-2.5">
+                                    High-energy functional fitness specialist helping members torch calories, boost stamina, and master explosive athletic circuits.
+                                </p>
+                                <div class="flex flex-wrap gap-1.5 mb-3">
+                                    <span class="text-[11px] bg-gym-darkgreen text-gym-lightgreen px-2 py-0.5 rounded border border-gym-lightgreen/30">HIIT Circuits</span>
+                                    <span class="text-[11px] bg-gym-darkgreen text-gym-lightgreen px-2 py-0.5 rounded border border-gym-lightgreen/30">Kettlebells</span>
+                                    <span class="text-[11px] bg-gym-darkgreen text-gym-lightgreen px-2 py-0.5 rounded border border-gym-lightgreen/30">Glute & Core</span>
+                                </div>
+                                <div class="bg-gym-black/80 rounded-xl p-2.5 border border-gym-midgreen text-[11px] space-y-1 mb-3">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Experience:</span>
+                                        <span class="text-white font-semibold">7 Years</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Schedule:</span>
+                                        <span class="text-gym-neon font-semibold">Sun - Thu (9AM - 7PM)</span>
+                                    </div>
+                                </div>
+                                <button onclick="event.stopPropagation(); openBookingModal('Coach Leena')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-gym-lightgreen to-gym-neon text-gym-black font-extrabold text-xs uppercase tracking-wider hover:brightness-110 transition-all">
+                                    Train With Leena
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COACH 4: DANA -->
+                    <div class="coach-card rounded-2xl overflow-hidden bg-gym-charcoal border-2 border-gym-midgreen cursor-pointer flex flex-col justify-end p-6 select-none" onclick="toggleCardMobile(this)">
+                        <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80" alt="Coach Dana" class="coach-image absolute inset-0 w-full h-full object-cover object-top brightness-75">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gym-black via-gym-black/80 to-transparent"></div>
+
+                        <div class="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+                            <span class="bg-gym-darkgreen/90 border border-gym-lightgreen/50 text-gym-neon text-[11px] font-bold uppercase px-3 py-1 rounded-full">
+                                Mobility & Core
+                            </span>
+                            <span class="hover-hint bg-gym-black/80 text-gym-lightgreen text-[11px] px-2.5 py-1 rounded-full border border-gym-lightgreen/30 flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-pointer text-[10px]"></i> Hover Info
+                            </span>
+                        </div>
+
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-2.5 h-2.5 rounded-full bg-gym-neon"></span>
+                                <span class="text-xs font-bold uppercase tracking-wider text-gym-lightgreen">Athletic Mobility & Endurance</span>
+                            </div>
+                            <h3 class="font-display text-4xl font-bold text-white tracking-wide uppercase leading-none">
+                                COACH DANA
+                            </h3>
+
+                            <!-- Hidden Details that Expand on Hover -->
+                            <div class="coach-details text-left">
+                                <p class="text-xs text-gray-200 leading-relaxed mb-3 border-l-2 border-gym-neon pl-2.5">
+                                    Dedicated to core strength, injury prevention, flexibility, and endurance conditioning so you move pain-free and perform at your peak.
+                                </p>
+                                <div class="flex flex-wrap gap-1.5 mb-3">
+                                    <span class="text-[11px] bg-gym-darkgreen text-gym-lightgreen px-2 py-0.5 rounded border border-gym-lightgreen/30">Core Stability</span>
+                                    <span class="text-[11px] bg-gym-darkgreen text-gym-lightgreen px-2 py-0.5 rounded border border-gym-lightgreen/30">Mobility Rehab</span>
+                                    <span class="text-[11px] bg-gym-darkgreen text-gym-lightgreen px-2 py-0.5 rounded border border-gym-lightgreen/30">Endurance</span>
+                                </div>
+                                <div class="bg-gym-black/80 rounded-xl p-2.5 border border-gym-midgreen text-[11px] space-y-1 mb-3">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Experience:</span>
+                                        <span class="text-white font-semibold">6 Years</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Schedule:</span>
+                                        <span class="text-gym-neon font-semibold">Mon - Sat (10AM - 8PM)</span>
+                                    </div>
+                                </div>
+                                <button onclick="event.stopPropagation(); openBookingModal('Coach Dana')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-gym-lightgreen to-gym-neon text-gym-black font-extrabold text-xs uppercase tracking-wider hover:brightness-110 transition-all">
+                                    Train With Dana
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==========================================
+         3. FOOTER (Gym Equipment Companies Section + Info)
+         ========================================== -->
+    <footer id="equipment-footer" class="bg-gym-black border-t-2 border-gym-midgreen text-gray-300">
+        
+        <!-- Dedicated Section: Companies of the Equipment Inside the Gym -->
+        <div class="bg-gradient-to-b from-gym-darkgreen/70 to-gym-black py-12 px-4 sm:px-6 lg:px-8 border-b border-gym-midgreen/50">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-8">
+                    <span class="text-gym-neon text-xs font-extrabold uppercase tracking-[0.25em] block mb-1">
+                        World-Class Machinery
+                    </span>
+                    <h3 class="font-display text-3xl sm:text-4xl font-bold text-white uppercase tracking-wider">
+                        OFFICIAL EQUIPMENT BRANDS INSIDE OUR GYM
+                    </h3>
+                    <p class="text-xs sm:text-sm text-gray-400 max-w-xl mx-auto">
+                        Our training floor is outfitted exclusively with biomechanically engineered machines and calibrated free weights from these global industry leaders:
+                    </p>
+                </div>
+
+                <!-- Equipment Companies Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                    
+                    <!-- Brand 1: Technogym -->
+                    <div class="equip-badge bg-gym-charcoal/90 border border-gym-midgreen rounded-xl p-4 text-center flex flex-col items-center justify-center">
+                        <i class="fa-solid fa-microchip text-gym-lightgreen text-xl mb-2"></i>
+                        <span class="font-display text-2xl font-bold tracking-wider text-white uppercase">TECHNOGYM</span>
+                        <span class="text-[10px] text-gym-neon uppercase tracking-widest">Smart Cardio & Cables</span>
+                    </div>
+
+                    <!-- Brand 2: Hammer Strength -->
+                    <div class="equip-badge bg-gym-charcoal/90 border border-gym-midgreen rounded-xl p-4 text-center flex flex-col items-center justify-center">
+                        <i class="fa-solid fa-gavel text-gym-lightgreen text-xl mb-2"></i>
+                        <span class="font-display text-2xl font-bold tracking-wider text-white uppercase">HAMMER STRENGTH</span>
+                        <span class="text-[10px] text-gym-neon uppercase tracking-widest">Plate-Loaded Iso</span>
+                    </div>
+
+                    <!-- Brand 3: Life Fitness -->
+                    <div class="equip-badge bg-gym-charcoal/90 border border-gym-midgreen rounded-xl p-4 text-center flex flex-col items-center justify-center">
+                        <i class="fa-solid fa-heart-pulse text-gym-lightgreen text-xl mb-2"></i>
+                        <span class="font-display text-2xl font-bold tracking-wider text-white uppercase">LIFE FITNESS</span>
+                        <span class="text-[10px] text-gym-neon uppercase tracking-widest">Selectorized Machines</span>
+                    </div>
+
+                    <!-- Brand 4: Rogue Fitness -->
+                    <div class="equip-badge bg-gym-charcoal/90 border border-gym-midgreen rounded-xl p-4 text-center flex flex-col items-center justify-center">
+                        <i class="fa-solid fa-dumbbell text-gym-lightgreen text-xl mb-2"></i>
+                        <span class="font-display text-2xl font-bold tracking-wider text-white uppercase">ROGUE FITNESS</span>
+                        <span class="text-[10px] text-gym-neon uppercase tracking-widest">Power Racks & Rigs</span>
+                    </div>
+
+                    <!-- Brand 5: Eleiko -->
+                    <div class="equip-badge bg-gym-charcoal/90 border border-gym-midgreen rounded-xl p-4 text-center flex flex-col items-center justify-center">
+                        <i class="fa-solid fa-weight-hanging text-gym-lightgreen text-xl mb-2"></i>
+                        <span class="font-display text-2xl font-bold tracking-wider text-white uppercase">ELEIKO</span>
+                        <span class="text-[10px] text-gym-neon uppercase tracking-widest">Competition Barbells</span>
+                    </div>
+
+                    <!-- Brand 6: Concept2 -->
+                    <div class="equip-badge bg-gym-charcoal/90 border border-gym-midgreen rounded-xl p-4 text-center flex flex-col items-center justify-center">
+                        <i class="fa-solid fa-wind text-gym-lightgreen text-xl mb-2"></i>
+                        <span class="font-display text-2xl font-bold tracking-wider text-white uppercase">CONCEPT2</span>
+                        <span class="text-[10px] text-gym-neon uppercase tracking-widest">RowErg & SkiErg</span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Footer Bar -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-gym-lightgreen inline-block"></span>
+                <span class="font-bold text-white uppercase tracking-wider">APEX PULSE GYM</span>
+                <span>&copy; 2026 All Rights Reserved.</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-5">
+                <span class="text-gym-lightgreen"><i class="fa-solid fa-location-dot mr-1"></i> Mecca St, Amman</span>
+                <span class="text-gym-lightgreen"><i class="fa-solid fa-phone mr-1"></i> +962 79 555 0199</span>
+                <span class="text-gym-lightgreen"><i class="fa-brands fa-instagram mr-1"></i> @ApexPulseGym</span>
+                <span class="text-gym-lightgreen"><i class="fa-brands fa-facebook mr-1"></i> Apex Pulse Gym</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==========================================
+         MODALS (Location Map & Coach Booking)
+         ========================================== -->
+    <!-- Location Modal -->
+    <div id="location-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="bg-gym-charcoal border-2 border-gym-lightgreen rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-gym-midgreen pb-3 mb-4">
+                <h4 class="font-display text-3xl font-bold text-gym-neon uppercase tracking-wide">
+                    <i class="fa-solid fa-location-dot mr-1"></i> Gym Location
+                </h4>
+                <button onclick="closeLocationModal()" class="text-gray-400 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <p class="text-sm text-gray-200 mb-3">
+                <strong>Apex Pulse Performance Club</strong><br>
+                Mecca Street, Building 142, 2nd Floor<br>
+                Amman, Jordan
+            </p>
+            <div class="rounded-xl bg-gym-darkgreen/60 border border-gym-midgreen p-4 text-xs text-gray-300 space-y-1.5 mb-5">
+                <div><i class="fa-solid fa-clock text-gym-lightgreen mr-2"></i> <strong>Hours:</strong> Open 24/7 for Members</div>
+                <div><i class="fa-solid fa-square-parking text-gym-lightgreen mr-2"></i> <strong>Parking:</strong> Free Underground Valet & Member Parking</div>
+                <div><i class="fa-solid fa-phone text-gym-lightgreen mr-2"></i> <strong>Front Desk:</strong> +962 79 555 0199</div>
+            </div>
+            <button onclick="closeLocationModal()" class="w-full py-2.5 rounded-xl bg-gym-lightgreen text-gym-black font-extrabold text-xs uppercase tracking-wider hover:bg-gym-neon transition-all">
+                Got It
+            </button>
+        </div>
+    </div>
+
+    <!-- Booking Session Modal -->
+    <div id="booking-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="bg-gym-charcoal border-2 border-gym-lightgreen rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-gym-midgreen pb-3 mb-4">
+                <h4 id="booking-title" class="font-display text-3xl font-bold text-gym-neon uppercase tracking-wide">
+                    Book Session
+                </h4>
+                <button onclick="closeBookingModal()" class="text-gray-400 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="submitBooking(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-gym-lightgreen mb-1 font-semibold">Your Full Name</label>
+                    <input type="text" required placeholder="e.g. Zaid Al-Masri" class="w-full px-3.5 py-2 rounded-xl bg-gym-black border border-gym-midgreen text-white text-sm focus:outline-none focus:border-gym-neon">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-gym-lightgreen mb-1 font-semibold">Phone Number</label>
+                    <input type="tel" required placeholder="+962 79 ..." class="w-full px-3.5 py-2 rounded-xl bg-gym-black border border-gym-midgreen text-white text-sm focus:outline-none focus:border-gym-neon">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-gym-lightgreen mb-1 font-semibold">Training Goal</label>
+                    <select class="w-full px-3.5 py-2 rounded-xl bg-gym-black border border-gym-midgreen text-white text-sm focus:outline-none focus:border-gym-neon">
+                        <option>Muscle Building & Strength</option>
+                        <option>Fat Loss & HIIT Conditioning</option>
+                        <option>Mobility, Core & Endurance</option>
+                        <option>General Gym Membership</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-gym-lightgreen to-gym-neon text-gym-black font-extrabold text-xs uppercase tracking-wider hover:brightness-110 transition-all mt-2">
+                    Confirm Request
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript for Interactive Video, Coaches, Clipboard & Modals -->
+    <script>
+        // Load a local video file chosen by the user
+        function loadUserVideo(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const fileURL = URL.createObjectURL(file);
+            const videoPlayer = document.getElementById('gym-video-player');
+            const placeholderUI = document.getElementById('video-placeholder-ui');
+
+            videoPlayer.src = fileURL;
+            videoPlayer.classList.remove('hidden');
+            placeholderUI.classList.add('hidden');
+            videoPlayer.play();
+            showToast('Video Loaded', `Now playing: ${file.name}`);
+        }
+
+        // Load a direct video URL pasted by the user
+        function loadVideoFromUrl() {
+            const urlInput = document.getElementById('video-url-input').value.trim();
+            if (!urlInput) {
+                showToast('Enter a Video URL', 'Paste a valid .mp4 link or click the Play button to choose a file.');
+                return;
+            }
+            const videoPlayer = document.getElementById('gym-video-player');
+            const placeholderUI = document.getElementById('video-placeholder-ui');
+
+            videoPlayer.src = urlInput;
+            videoPlayer.classList.remove('hidden');
+            placeholderUI.classList.add('hidden');
+            videoPlayer.play().catch(() => {
+                showToast('Video Ready', 'Press play on the video controls to start.');
+            });
+        }
+
+        // Toggle HTML code hint drawer
+        function toggleCodeHint() {
+            const box = document.getElementById('code-hint-box');
+            box.classList.toggle('hidden');
+        }
+
+        // Support tap-to-expand on touch devices for Coach Cards
+        function toggleCardMobile(cardElement) {
+            const allCards = document.querySelectorAll('.coach-card');
+            allCards.forEach(c => {
+                if (c !== cardElement) c.classList.remove('active-card');
+            });
+            cardElement.classList.toggle('active-card');
+        }
+
+        // Copy Phone Number to Clipboard
+        function copyPhone(phoneStr) {
+            const tempInput = document.createElement('input');
+            tempInput.value = phoneStr;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast('Phone Number Copied', `${phoneStr} copied to clipboard!`);
+        }
+
+        // Toast Notification Helper
+        let toastTimeout;
+        function showToast(title, message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-message').textContent = message;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3200);
+        }
+
+        // Modals
+        function openLocationModal() {
+            const modal = document.getElementById('location-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        function closeLocationModal() {
+            const modal = document.getElementById('location-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function openBookingModal(targetName) {
+            const modal = document.getElementById('booking-modal');
+            document.getElementById('booking-title').textContent = `Book: ${targetName}`;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        function closeBookingModal() {
+            const modal = document.getElementById('booking-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        function submitBooking(e) {
+            e.preventDefault();
+            closeBookingModal();
+            showToast('Request Sent!', 'Our front desk will contact you shortly to confirm your session.');
+        }
+    </script>
+</body>
+</html>
